@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a1020">
+<title>ANTON KNACK 2</title>
+<style>
+:root{color-scheme:dark;--bg:#080d18;--panel:#111b2e;--line:#293b58;--cyan:#49e5d2;--muted:#9aabc4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#eef5ff;font:14px system-ui,Arial,sans-serif}
+header{display:flex;align-items:center;gap:12px;padding:13px 16px;background:#0d1627;border-bottom:1px solid var(--line)}
+.logo{font-size:19px;font-weight:900;letter-spacing:1px}.logo span{color:var(--cyan)}.tag{color:var(--muted);font-size:12px;margin-left:auto}
+main{max-width:1100px;margin:auto;padding:16px;display:grid;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px}
+h2{font-size:16px;margin:0 0 10px}p{color:#c2cee0;line-height:1.5;margin:8px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap}input,textarea,button{font:inherit;border-radius:8px;border:1px solid #354a68;padding:10px;background:#0b1424;color:#edf5ff}
+input{flex:1;min-width:190px}button{cursor:pointer;background:#1a2b45}button.primary{background:#087d78;border-color:#13a99e}button:focus,input:focus,textarea:focus{outline:2px solid var(--cyan);outline-offset:1px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.tab.active{border-color:var(--cyan);color:var(--cyan)}
+textarea{width:100%;min-height:190px;resize:vertical;font:12px ui-monospace,monospace;line-height:1.5}
+iframe{width:100%;height:270px;background:white;border:1px solid var(--line);border-radius:8px}
+.note{font-size:12px;color:var(--muted)}.warn{border-left:3px solid #e8b45a;padding-left:10px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.tag{display:none}main{padding:10px}.card{padding:12px}}
+</style>
+</head>
+<body>
+<header><div class="logo">ANTON <span>KNACK 2</span></div><div class="tag">iPad-first · Browser toolkit</div></header>
+<main>
+<section class="card">
+<h2>Webseite öffnen</h2>
+<p>Öffnet die gewünschte Seite in einem eigenen Safari-Tab. Das ist zuverlässiger als ein eingebettetes Fenster, weil viele Seiten iFrames blockieren.</p>
+<div class="row"><input id="address" value="https://anton.app" aria-label="Webadresse"><button class="primary" id="open">In neuem Tab öffnen ↗</button></div>
+<p class="note">Hinweis: ANTON KNACK 2 kann nicht automatisch den Inhalt eines anderen Tabs lesen oder dessen interne Developer Tools ersetzen.</p>
+</section>
+<section class="card">
+<h2>Werkzeuge für eigene Testseiten</h2>
+<div class="tabs">
+<button class="tab active" data-pane="html">HTML</button><button class="tab" data-pane="css">CSS</button><button class="tab" data-pane="js">JavaScript</button>
+</div>
+<textarea id="editor" spellcheck="false" aria-label="Code-Editor"></textarea>
+<div class="row" style="margin-top:8px"><button class="primary" id="run">Code lokal ausführen</button><button id="reset">Beispiel zurücksetzen</button></div>
+<p class="note">Der Editor führt nur deinen eigenen Testcode in der Vorschau aus. Er bearbeitet keine fremden Webseiten.</p>
+</section>
+<section class="card">
+<h2>Live-Vorschau</h2>
+<iframe id="preview" sandbox="allow-scripts" title="Lokale Codevorschau"></iframe>
+</section>
+<section class="card">
+<h2>Entwickler-Notizen</h2>
+<p class="warn">Safari auf dem iPad erlaubt einer normalen GitHub-Pages-Seite nicht, die Elements-, Console- oder Network-Daten einer anderen Website auszulesen. Dafür ist ein separater, sicher konfigurierter Remote-Browser nötig.</p>
+<p>Dieses Starterprojekt enthält bewusst keine Login-Abfrage, Cookie-/Passwort-Erfassung, Session-Übernahme oder Umgehung von ANTON-Schutzmechanismen.</p>
+</section>
+</main>
+<script>
+const samples={
+html:'<h1>Hallo Alessio!</h1>\\n<p>Das ist deine lokale Testseite.</p>\\n<button onclick="document.querySelector(\\'p\\').textContent=\\'Button funktioniert!\\'">Testbutton</button>',
+css:'body { font-family: system-ui; padding: 24px; background: #eef5ff; color: #102030; }\\nh1 { color: #087d78; }\\nbutton { padding: 10px; border-radius: 8px; }',
+js:'// JavaScript für deine eigene Testseite\\nconsole.log("ANTON KNACK 2 bereit!");'
+};
+let active='html';const editor=document.querySelector('#editor');
+function setPane(p){active=p;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.pane===p));editor.value=samples[p]}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setPane(b.dataset.pane)));
+document.querySelector('#open').addEventListener('click',()=>{let u=document.querySelector('#address').value.trim();if(!/^https?:\\/\\//i.test(u))u='https://'+u;window.open(u,'_blank','noopener,noreferrer')});
+document.querySelector('#run').addEventListener('click',()=>{const values={html:active==='html'?editor.value:samples.html,css:active==='css'?editor.value:samples.css,js:active==='js'?editor.value:samples.js};const doc='<!doctype html><html><head><meta charset="utf-8"><style>'+values.css+'</style></head><body>'+values.html+'<script>'+values.js.replace(/<\\/script/gi,'<\\\\/script')+'<\\/script></body></html>';document.querySelector('#preview').srcdoc=doc});
+document.querySelector('#reset').addEventListener('click',()=>setPane(active));
+setPane('html');document.querySelector('#run').click();
+</script>
+</body></html>
